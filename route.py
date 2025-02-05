@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import *
 from sqlmodel import *
 from typing import *
-import datetime
+from datetime import *
 
 app = FastAPI()
 
@@ -13,11 +13,12 @@ class Route(SQLModel, table=True):
     title: str
     description: str
     creator: str
-    # created_at: datetime.datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now, nullable=False)
     created_at: str
     is_private: bool
     photo_url: Optional[str] = None
     points: List["RoutePoint"] = Relationship(back_populates="route")
+
 
 
 class RoutePoint(SQLModel, table=True):
@@ -26,6 +27,8 @@ class RoutePoint(SQLModel, table=True):
     longitude: float
     route_id: Optional[int] = Field(default=None, foreign_key="route.id")
     route: Optional[Route] = Relationship(back_populates="points")
+
+
 
 
 
@@ -46,7 +49,6 @@ def read_routes():
     with Session(engine) as session:
         routes = session.exec(select(Route)).all()
         return routes
-
 
 
 
