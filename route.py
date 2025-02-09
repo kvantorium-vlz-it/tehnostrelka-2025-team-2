@@ -16,8 +16,14 @@ class Route(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now, nullable=False)
     created_at: str
     is_private: bool
-    photo_url: Optional[str] = None
     points: List["RoutePoint"] = Relationship(back_populates="route")
+
+
+class RouteImage(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    photo_url: Optional[str] = None
+    photo_id: Optional[int] = Field(default=None, foreign_key="photo.id")
+
 
 
 
@@ -29,7 +35,8 @@ class RoutePoint(SQLModel, table=True):
     route: Optional[Route] = Relationship(back_populates="points")
 
 
-#
+
+
 
 
 engine = create_engine("sqlite:///database.db")
