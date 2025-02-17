@@ -37,6 +37,13 @@ class RouteUpdate(SQLModel):
     description: Optional[str] = None
     is_private: Optional[bool] = None
 
+class RoutePointUpdate(SQLModel):
+    latitude: float
+    longitude: float
+    
+class RoutePhotoUpdate(SQLModel):
+    url: Optional[str] = None
+
 engine = create_engine("sqlite:///database.db")
 
 def create_db_and_tables():
@@ -148,6 +155,35 @@ def update_route(route_id: int, route: RouteUpdate):
 
 
 
+
+@app.patch("/route_photos/{photo_id}", response_model=RoutePhoto)
+def update_photos(photo_id: int, route: RoutePhotoUpdate):
+    with Session(engine) as session:
+        db_photo = session.get(RoutePhoto, photo_id)
+        if not db_photo:
+            raise HTTPException(status_code=404, detail="Route not found")
+        route_data = route.dict(exclude_unset=True)
+        for key, value in route_data.items():
+            setattr(db_photo, key, value)
+        session.add(db_photo)
+        session.commit()
+        session.refresh(db_photo)
+        return db_photo
+
+
+@app.patch("/route_point/{point_id}", response_model=RoutePoint)
+def update_point(point_id: int, route: RoutePointUpdate):
+    with Session(engine) as session:
+        db_point = session.get(RoutePoint, point_id)
+        if not db_point:
+            raise HTTPException(status_code=404, detail="Route not found")
+        route_data = route.dict(exclude_unset=True)
+        for key, value in route_data.items():
+            setattr(db_point, key, value)
+        session.add(db_point)
+        session.commit()
+        session.refresh(db_point)
+        return db_point
 
 # if (__name__ == "__main__"):
 #     uvicorn.run("main:app", reload=True)
